@@ -1,7 +1,6 @@
 import Foundation
 import CryptoStarterPack
 import Bedrock
-import CryptoStarterPack
 import AwesomeDictionary
 
 public struct EncryptedAddress256: Codable {
