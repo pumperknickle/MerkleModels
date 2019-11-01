@@ -1,8 +1,10 @@
 import Foundation
 import CryptoStarterPack
 import Bedrock
+import Vapor
+import FluentPostgreSQL
 
-public protocol SignedMessage: Codable {
+public protocol SignedMessage: Content, Parameter, Migration, Model {
 	associatedtype AssymetricCrypto: AsymmetricDelegate
 	associatedtype HashDelegate: CryptoDelegate
 	associatedtype Digest: FixedWidthInteger, BinaryEncodable
@@ -31,9 +33,19 @@ public extension SignedMessage {
 		return AssymetricCrypto.verify(message: message.toBoolArray(), publicKey: publicKey, signature: signature)
 	}
 	
-	init?(privateKey: PrivateKey, publicKey: PublicKey, message: MessageType) {
-		guard let publicKeyHashBinary = HashDelegate.hash(publicKey.toBoolArray()), let publicKeyHash = Digest(raw: publicKeyHashBinary) else { return nil }
+	static func createSignature(for message: MessageType, with privateKey: PrivateKey) -> Signature? {
 		guard let signature = AssymetricCrypto.sign(message: message.toBoolArray(), privateKey: privateKey) else { return nil }
+		return signature
+	}
+	
+	static func hash(publicKey: PublicKey) -> Digest? {
+		guard let publicKeyHashBinary = HashDelegate.hash(publicKey.toBoolArray()) else { return nil }
+		return Digest(raw: publicKeyHashBinary)
+	}
+	
+	init?(privateKey: PrivateKey, publicKey: PublicKey, message: MessageType) {
+		guard let publicKeyHash = Self.hash(publicKey: publicKey) else { return nil }
+		guard let signature = Self.createSignature(for: message, with: privateKey) else { return nil }
 		self.init(publicKey: publicKey, publicKeyHash: publicKeyHash, message: message, signature: signature)
 	}
 }

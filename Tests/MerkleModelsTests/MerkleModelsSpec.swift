@@ -25,6 +25,11 @@ final class MerkleModelsSpec: QuickSpec {
 				expect(signedMessage).toNot(beNil())
 				expect(signedMessage!.verify(publicKey: publicKey)).to(beTrue())
 			}
+			let flowMessage = FlowMessage256(flow: "hello world", privateKey: privateKey, publicKey: publicKey, message: encryptedAddress!)
+			it("should verify successfully") {
+				expect(flowMessage).toNot(beNil())
+				expect(flowMessage!.verify(publicKey: publicKey)).to(beTrue())
+			}
 		}
 	}
 }
