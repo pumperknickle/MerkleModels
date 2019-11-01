@@ -5,8 +5,8 @@ import Vapor
 import FluentPostgreSQL
 
 public struct FlowMessage256: Codable {
-    private var rawID: ID?
-    private var rawCreatedAt: Date?
+    public var rawID: ID?
+    public var rawCreatedAt: Date?
 	private let rawFlow: String!
 	private let rawPublicKey: String?
 	private let rawPublicKeyHash: Digest!
